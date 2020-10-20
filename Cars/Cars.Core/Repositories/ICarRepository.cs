@@ -8,16 +8,16 @@ namespace Cars.Core.Repositories
 {
     public interface ICarRepository
     {
-        Task<IEnumerable<Car>> GetCarsAsync();
+        IEnumerable<Car> GetCars();
 
-        Task<Car> GetCarAsync(int carId);
+        Car GetCar(int carId);
 
-        Task<Car> AddCarAsync(Car car);
+        void AddCar(PostCarDTO car);
 
-        Task UpdateCarAsync(string carId, Car car);
+        Car  UpdateCar(int carId, Car car);
 
-        Task PatchCarAsync(int carId, Car car);
+        Car PatchCar(int carId);
 
-        Task DeleteCarAsync(string carId);
+        bool DeleteCar(int carId);
     }
 }
