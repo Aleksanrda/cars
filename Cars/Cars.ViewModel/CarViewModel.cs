@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace Cars.Core.Entities
+namespace Cars.ViewModel
 {
-    public class PostCarDTO
+    public class CarViewModel
     {
         [Required]
         public string Name { get; set; }

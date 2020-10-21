@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using Cars.Core.Repositories;
 using System.Threading.Tasks;
+using Cars.ViewModel;
 
 namespace Cars.Data.Repositories
 {
@@ -24,7 +25,7 @@ namespace Cars.Data.Repositories
             };
         }
 
-        public void AddCar(PostCarDTO car)
+        public void AddCar(CarViewModel car)
         {
             _cars.Add(new Car()
             {
