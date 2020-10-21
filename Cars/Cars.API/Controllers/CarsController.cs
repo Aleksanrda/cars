@@ -7,6 +7,7 @@ using Cars.Core.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Cars.API.Controllers
 {
@@ -15,17 +16,24 @@ namespace Cars.API.Controllers
     public class CarsController : ControllerBase
     {
         private readonly ICarRepository _carRepository;
+        private readonly ILogger _logger;
 
-        public CarsController(ICarRepository carRepository)
+        public CarsController(ICarRepository carRepository, 
+            ILogger<CarsController> logger)
         {
             _carRepository = carRepository;
+            _logger = logger;
         }
 
         [HttpPost]
         public IActionResult PostCar([FromBody] PostCarDTO dto)
         {
+            _logger.LogInformation("POST method called");
+
             if (!ModelState.IsValid)
             {
+                _logger.LogWarning("Model state is not valid");
+
                 return BadRequest(ModelState);
             }
 
@@ -38,6 +46,8 @@ namespace Cars.API.Controllers
         [ProducesResponseType(typeof(Car[]), StatusCodes.Status200OK)]
         public IActionResult GetCars()
         {
+            _logger.LogInformation("GetCars method called");
+
             var carsResult = _carRepository.GetCars();
 
             return Ok(carsResult);
@@ -47,10 +57,14 @@ namespace Cars.API.Controllers
         [ProducesResponseType(typeof(Car[]), StatusCodes.Status200OK)]
         public IActionResult GetCar([FromRoute] int carId)
         {
+            _logger.LogInformation("GetCar method called");
+
             var car = _carRepository.GetCar(carId);
 
             if (car == null)
             {
+                _logger.LogWarning("Get ({Id}) NOT FOUND", carId);
+
                 return NotFound();
             }
 
@@ -60,10 +74,14 @@ namespace Cars.API.Controllers
         [HttpPut("{id}")]
         public IActionResult PutCar([FromRoute] int id, [FromBody] Car putCar)
         {
+            _logger.LogInformation("PutCar method called");
+
             var editCar = _carRepository.UpdateCar(id, putCar);
 
             if (editCar == null)
             {
+                _logger.LogWarning("Get ({Id}) NOT FOUND", id);
+
                 return NotFound();
             }
 
@@ -74,10 +92,14 @@ namespace Cars.API.Controllers
         [ProducesResponseType(typeof(Car), StatusCodes.Status200OK)]
         public IActionResult DeleteCar([FromRoute] int id)
         {
+            _logger.LogInformation("DeleteCar method called");
+
             var result = _carRepository.DeleteCar(id);
 
             if (!result)
             {
+                _logger.LogWarning("Get ({Id}) NOT FOUND", id);
+
                 return NotFound();
             }
 
@@ -87,16 +109,20 @@ namespace Cars.API.Controllers
         [HttpPatch("{id:int}")]
         public IActionResult PatchCar(int id, [FromBody] JsonPatchDocument<Car> patchEntity)
         {
+            _logger.LogInformation("PatchCar method called");
+
             var car = _carRepository.PatchCar(id);
 
             if (car == null)
             {
+                _logger.LogWarning("Get ({Id}) NOT FOUND", id);
+
                 return NotFound();
             }
 
             patchEntity.ApplyTo(car);
 
-            return Ok(car);
+            return NoContent();
         }
     }
 }
