@@ -1,87 +1,63 @@
 ﻿using Cars.Core.Entities;
-using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using Cars.Core.Repositories;
 using System.Threading.Tasks;
-using Cars.ViewModel;
+using Microsoft.Azure.Cosmos;
 
 namespace Cars.Data.Repositories
 {
     public class CarRepository : ICarRepository
     {
-        private readonly List<Car> _cars;
+        private readonly Container _container;
 
-        public CarRepository()
+        public CarRepository(CosmosClient dbClient, 
+            string databaseName, string containerName)
         {
-            _cars = new List<Car>()
-            {
-                new Car {Id = 1, Name = "Audi", Volume = 2.6, Consumption = 344.6, Capacity = 34567, Price = 123333333},
-                new Car {Id = 2, Name = "BMW", Volume = 0.5, Consumption = 545.78, Capacity = 98844, Price = 2333444},
-                new Car {Id = 3, Name = "Ferrari", Volume = 4.7, Consumption = 234.4, Capacity = 34324, Price = 3445}
-            };
+            _container = dbClient.GetContainer(databaseName, containerName);
         }
 
-        public void AddCar(Car car)
+        public async Task AddCarAsync(Car car)
         {
-            _cars.Add(new Car()
-            {
-                Id = 4,
-                Name = car.Name,
-                Volume = car.Volume,
-                Consumption = car.Consumption,
-                Price = car.Price
-            });
+            await _container.CreateItemAsync(car, new PartitionKey(car.Id));
         }
 
-        public bool DeleteCar(int carId)
+        public async Task DeleteCarAsync(string carId)
         {
-            var carToRemove = _cars.SingleOrDefault(c => c.Id == carId);
+            await _container.DeleteItemAsync<Car>(carId, new PartitionKey(carId));
+        }
 
-            if (carToRemove != null)
+        public async Task<Car> GetCarAsync(string carId)
+        {
+            try
             {
-                _cars.Remove(carToRemove);
+                ItemResponse<Car> response = await _container.ReadItemAsync<Car>(carId, new PartitionKey(carId));
+                return response.Resource;
+            }
+            catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+        }
 
-                return true;
+        public async Task<IEnumerable<Car>> GetCarsAsync(string queryString)
+        {
+            var query = _container.GetItemQueryIterator<Car>(new QueryDefinition(queryString));
+            List<Car> cars = new List<Car>();
+
+            while (query.HasMoreResults)
+            {
+                var response = await query.ReadNextAsync();
+
+                cars.AddRange(response.ToList());
             }
 
-            return false;
+            return cars;
         }
 
-        public Car GetCar(int carId)
+        public async Task UpdateCarAsync(string carId, Car car)
         {
-            return _cars.FirstOrDefault(с => с.Id == carId);
-        }
-
-        public IEnumerable<Car> GetCars()
-        {
-            return _cars.OrderBy(с => с.Name);
-        }
-
-        public Car PatchCar(int carId)
-        {
-            var carToPatch = _cars.FirstOrDefault(c => c.Id == carId);
-
-            return carToPatch;
-        }
-
-        public Car UpdateCar(int carId, Car car)
-        {
-            var currentCar = _cars.FirstOrDefault(c => c.Id == carId); ;
-
-            if (currentCar != null)
-            {
-                currentCar.Name = car.Name;
-                currentCar.Volume = car.Volume;
-                currentCar.Consumption = car.Consumption;
-                currentCar.Capacity = car.Capacity;
-                currentCar.Price = car.Price;
-            }
-
-            return currentCar;
+            await _container.UpsertItemAsync(car, new PartitionKey(carId));
         }
     }
 }

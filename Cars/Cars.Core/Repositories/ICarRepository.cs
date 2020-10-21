@@ -1,23 +1,19 @@
 ﻿using Cars.Core.Entities;
-using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Cars.Core.Repositories
 {
     public interface ICarRepository
     {
-        IEnumerable<Car> GetCars();
+        Task<IEnumerable<Car>> GetCarsAsync(string query);
 
-        Car GetCar(int carId);
+        Task<Car> GetCarAsync(string carId);
 
-        void AddCar(Car car);
+        Task AddCarAsync(Car car);
 
-        Car  UpdateCar(int carId, Car car);
+        Task UpdateCarAsync(string carId, Car car);
 
-        Car PatchCar(int carId);
-
-        bool DeleteCar(int carId);
+        Task DeleteCarAsync(string carId);
     }
 }

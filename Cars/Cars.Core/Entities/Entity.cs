@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Newtonsoft.Json;
 
 namespace Cars.Core.Entities
 {
     public abstract class Entity
     {
-        public int Id { get; set; }
+        [JsonProperty(PropertyName = "id")]
+        public string Id { get; set; }
     }
 }

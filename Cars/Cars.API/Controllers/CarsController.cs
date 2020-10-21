@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Cars.Core.Entities;
@@ -22,7 +20,7 @@ namespace Cars.API.Controllers
         private readonly IMapper _mapper;
 
 
-        public CarsController(ICarRepository carRepository, 
+        public CarsController(ICarRepository carRepository,
             ILogger<CarsController> logger, IMapper mapper)
         {
             _carRepository = carRepository;
@@ -31,7 +29,7 @@ namespace Cars.API.Controllers
         }
 
         [HttpPost]
-        public IActionResult PostCar([FromBody] CarViewModel dto)
+        public async Task<IActionResult> PostCar([FromBody] CarViewModel dto)
         {
             _logger.LogInformation("POST method called");
 
@@ -44,29 +42,37 @@ namespace Cars.API.Controllers
 
             var car = _mapper.Map<Car>(dto);
 
-            _carRepository.AddCar(car);
+            car.Id = Guid.NewGuid().ToString();
+            await _carRepository.AddCarAsync(car);
 
             return Ok();
         }
 
         [HttpGet]
         [ProducesResponseType(typeof(Car[]), StatusCodes.Status200OK)]
-        public IActionResult GetCars()
+        public async Task<IActionResult> GetCars()
         {
             _logger.LogInformation("GetCars method called");
 
-            var carsResult = _carRepository.GetCars();
+            var cars = await _carRepository.GetCarsAsync("SELECT * FROM c");
 
-            return Ok(carsResult);
+            return Ok(cars);
         }
 
         [HttpGet("{carId}")]
         [ProducesResponseType(typeof(Car[]), StatusCodes.Status200OK)]
-        public IActionResult GetCar([FromRoute] int carId)
+        public async Task<IActionResult> GetCar([FromRoute] string carId)
         {
             _logger.LogInformation("GetCar method called");
 
-            var car = _carRepository.GetCar(carId);
+            if (carId == null)
+            {
+                _logger.LogWarning("BadRequest");
+
+                return BadRequest();
+            }
+
+            var car = await _carRepository.GetCarAsync(carId);
 
             if (car == null)
             {
@@ -79,57 +85,38 @@ namespace Cars.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult PutCar([FromRoute] int id, [FromBody] Car putCar)
+        public async Task<IActionResult> PutCar([FromRoute] string id, [FromBody] Car putCar)
         {
             _logger.LogInformation("PutCar method called");
 
-            var editCar = _carRepository.UpdateCar(id, putCar);
-
-            if (editCar == null)
+            if (!ModelState.IsValid)
             {
-                _logger.LogWarning("Get ({Id}) NOT FOUND", id);
+                _logger.LogWarning("Model state is not valid");
 
-                return NotFound();
+                return BadRequest(ModelState);
             }
+
+            await _carRepository.UpdateCarAsync(id, putCar);
 
             return NoContent();
         }
 
         [HttpDelete("{id}")]
         [ProducesResponseType(typeof(Car), StatusCodes.Status200OK)]
-        public IActionResult DeleteCar([FromRoute] int id)
+        public async Task<IActionResult> DeleteCar([FromRoute] string id)
         {
             _logger.LogInformation("DeleteCar method called");
 
-            var result = _carRepository.DeleteCar(id);
-
-            if (!result)
+            if (id == null)
             {
-                _logger.LogWarning("Get ({Id}) NOT FOUND", id);
+                _logger.LogWarning("BadRequest");
 
-                return NotFound();
+                return BadRequest();
             }
+
+            await _carRepository.DeleteCarAsync(id);
 
             return Ok();
-        }
-
-        [HttpPatch("{id:int}")]
-        public IActionResult PatchCar(int id, [FromBody] JsonPatchDocument<Car> patchEntity)
-        {
-            _logger.LogInformation("PatchCar method called");
-
-            var car = _carRepository.PatchCar(id);
-
-            if (car == null)
-            {
-                _logger.LogWarning("Get ({Id}) NOT FOUND", id);
-
-                return NotFound();
-            }
-
-            patchEntity.ApplyTo(car);
-
-            return NoContent();
         }
     }
 }
