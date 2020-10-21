@@ -1,5 +1,4 @@
 ﻿using Cars.Core.Entities;
-using Cars.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -13,7 +12,7 @@ namespace Cars.Core.Repositories
 
         Car GetCar(int carId);
 
-        void AddCar(CarViewModel car);
+        void AddCar(Car car);
 
         Car  UpdateCar(int carId, Car car);
 

@@ -19,7 +19,7 @@ namespace Cars.API
                 throw new ArgumentNullException(nameof(configuration));
             }
 
-            services.AddTransient<ICarRepository, CarRepository>();
+            services.AddSingleton<ICarRepository, CarRepository>();
 
             return services;
         }

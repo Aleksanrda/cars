@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Cars.Core.Entities;
 using Cars.Core.Repositories;
+using Cars.ViewModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -17,16 +19,19 @@ namespace Cars.API.Controllers
     {
         private readonly ICarRepository _carRepository;
         private readonly ILogger _logger;
+        private readonly IMapper _mapper;
+
 
         public CarsController(ICarRepository carRepository, 
-            ILogger<CarsController> logger)
+            ILogger<CarsController> logger, IMapper mapper)
         {
             _carRepository = carRepository;
             _logger = logger;
+            _mapper = mapper;
         }
 
         [HttpPost]
-        public IActionResult PostCar([FromBody] PostCarDTO dto)
+        public IActionResult PostCar([FromBody] CarViewModel dto)
         {
             _logger.LogInformation("POST method called");
 
@@ -37,7 +42,9 @@ namespace Cars.API.Controllers
                 return BadRequest(ModelState);
             }
 
-            _carRepository.AddCar(dto);
+            var car = _mapper.Map<Car>(dto);
+
+            _carRepository.AddCar(car);
 
             return Ok();
         }

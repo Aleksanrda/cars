@@ -25,7 +25,7 @@ namespace Cars.Data.Repositories
             };
         }
 
-        public void AddCar(CarViewModel car)
+        public void AddCar(Car car)
         {
             _cars.Add(new Car()
             {

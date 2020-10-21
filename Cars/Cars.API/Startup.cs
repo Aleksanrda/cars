@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -23,6 +24,8 @@ namespace Cars.API
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddAutoMapper(typeof(DomainProfile));
+
             services.AddControllers();
 
             services.AddSwaggerGen(c =>
@@ -45,6 +48,8 @@ namespace Cars.API
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
             });
+
+            app.UseStaticFiles();
 
             app.UseRouting();
 
