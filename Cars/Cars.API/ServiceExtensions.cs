@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Cars.Core.Services;
 
 namespace Cars.API
 {
@@ -19,7 +20,7 @@ namespace Cars.API
                 throw new ArgumentNullException(nameof(configuration));
             }
 
-            services.AddSingleton<ICarRepository, CarRepository>();
+            services.AddScoped<ICarsService, CarsService>();
 
             return services;
         }

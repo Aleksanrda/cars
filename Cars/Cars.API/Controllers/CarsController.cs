@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Cars.Core.Entities;
 using Cars.Core.Repositories;
+using Cars.Core.Services;
 using Cars.ViewModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
@@ -15,15 +16,15 @@ namespace Cars.API.Controllers
     [Route("api/[controller]")]
     public class CarsController : ControllerBase
     {
-        private readonly ICarRepository _carRepository;
+        private readonly ICarsService _carsService;
         private readonly ILogger _logger;
         private readonly IMapper _mapper;
 
 
-        public CarsController(ICarRepository carRepository,
+        public CarsController(ICarsService carsService,
             ILogger<CarsController> logger, IMapper mapper)
         {
-            _carRepository = carRepository;
+            _carsService = carsService;
             _logger = logger;
             _mapper = mapper;
         }
@@ -42,8 +43,7 @@ namespace Cars.API.Controllers
 
             var car = _mapper.Map<Car>(viewModel);
 
-            car.Id = Guid.NewGuid().ToString();
-            var newCar = await _carRepository.AddCarAsync(car);
+            var newCar = await _carsService.AddCarAsync(car);
 
             return Ok(newCar);
         }
@@ -54,7 +54,7 @@ namespace Cars.API.Controllers
         {
             _logger.LogInformation("GetCars method called");
 
-            var cars = await _carRepository.GetCarsAsync("SELECT * FROM c");
+            var cars = await _carsService.GetCarsAsync();
 
             return Ok(cars);
         }
@@ -72,7 +72,7 @@ namespace Cars.API.Controllers
                 return BadRequest();
             }
 
-            var car = await _carRepository.GetCarAsync(carId);
+            var car = await _carsService.GetCarAsync(carId);
 
             if (car == null)
             {
@@ -96,7 +96,7 @@ namespace Cars.API.Controllers
 
             _logger.LogInformation("Model state is valid");
 
-            var editCar = await _carRepository.UpdateCarAsync(id, putCar);
+            var editCar = await _carsService.UpdateCarAsync(id, putCar);
 
             return Ok(editCar);
         }
@@ -114,7 +114,7 @@ namespace Cars.API.Controllers
                 return BadRequest();
             }
 
-            await _carRepository.DeleteCarAsync(id);
+            await _carsService.DeleteCarAsync(id);
 
             return Ok();
         }

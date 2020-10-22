@@ -36,7 +36,7 @@ namespace Cars.API
 
             services.AddSingleton<ICarRepository>(InitializeCosmosClientInstanceAsync(Configuration.GetSection("CosmosDb")).GetAwaiter().GetResult());
 
-            //services.RegisterCarsServices(Configuration);
+            services.RegisterCarsServices(Configuration);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env,

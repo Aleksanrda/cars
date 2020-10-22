@@ -1,4 +1,5 @@
-﻿using Cars.Core.Entities;
+﻿using System;
+using Cars.Core.Entities;
 using System.Collections.Generic;
 using System.Linq;
 using Cars.Core.Repositories;
@@ -19,6 +20,8 @@ namespace Cars.Data.Repositories
 
         public async Task<Car> AddCarAsync(Car car)
         {
+            car.Id = Guid.NewGuid().ToString();
+
             var response = await _container.CreateItemAsync(car, new PartitionKey(car.Id));
 
             return response.Resource;
