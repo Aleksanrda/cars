@@ -76,7 +76,7 @@ namespace Cars.API.Controllers
 
             if (car == null)
             {
-                _logger.LogWarning("Get ({Id}) NOT FOUND", carId);
+                _logger.LogWarning("Get {Id} NOT FOUND", carId);
 
                 return NotFound();
             }

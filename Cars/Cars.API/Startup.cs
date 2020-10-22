@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using Serilog;
 
 namespace Cars.API
 {
@@ -30,6 +31,11 @@ namespace Cars.API
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo {Title = "My API", Version = "v1"});
+            });
+
+            services.AddLogging(loggingBuilder =>
+            {
+                loggingBuilder.AddSeq();
             });
 
             services.AddLogging(builder => builder.AddConsole());
