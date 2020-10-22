@@ -1,4 +1,5 @@
 ﻿using Cars.Core.Entities;
+using Microsoft.Azure.Cosmos;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -6,7 +7,7 @@ namespace Cars.Core.Repositories
 {
     public interface ICarRepository
     {
-        Task<IEnumerable<Car>> GetCarsAsync(string query);
+        Task<IEnumerable<Car>> GetCarsAsync();
 
         Task<Car> GetCarAsync(string carId);
 
@@ -14,6 +15,6 @@ namespace Cars.Core.Repositories
 
         Task<Car> UpdateCarAsync(string carId, Car car);
 
-        Task DeleteCarAsync(string carId);
+        Task<Car> DeleteCarAsync(string carId);
     }
 }

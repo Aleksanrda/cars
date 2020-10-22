@@ -16,6 +16,6 @@ namespace Cars.Core.Services
 
         Task<Car> UpdateCarAsync(string carId, Car car);
 
-        Task DeleteCarAsync(string carId);
+        Task<Car> DeleteCarAsync(string carId);
     }
 }

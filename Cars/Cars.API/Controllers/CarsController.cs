@@ -98,6 +98,11 @@ namespace Cars.API.Controllers
 
             var editCar = await _carsService.UpdateCarAsync(id, putCar);
 
+            if (editCar == null)
+            {
+                return BadRequest();
+            }
+
             return Ok(editCar);
         }
 
@@ -114,7 +119,12 @@ namespace Cars.API.Controllers
                 return BadRequest();
             }
 
-            await _carsService.DeleteCarAsync(id);
+            var car = await _carsService.DeleteCarAsync(id);
+
+            if (car == null)
+            {
+                return BadRequest();
+            }
 
             return Ok();
         }

@@ -23,9 +23,11 @@ namespace Cars.Core.Services
             return newCar;
         }
 
-        public async Task DeleteCarAsync(string carId)
+        public async Task<Car> DeleteCarAsync(string carId)
         {
-            await _carRepository.DeleteCarAsync(carId);
+            var response = await _carRepository.DeleteCarAsync(carId);
+
+            return response;
         }
 
         public async Task<Car> GetCarAsync(string carId)
@@ -37,7 +39,7 @@ namespace Cars.Core.Services
 
         public async Task<IEnumerable<Car>> GetCarsAsync()
         {
-            var cars = await _carRepository.GetCarsAsync("SELECT * FROM c");
+            var cars = await _carRepository.GetCarsAsync();
 
             return cars;
         }

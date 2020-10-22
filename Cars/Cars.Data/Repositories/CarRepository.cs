@@ -5,6 +5,7 @@ using System.Linq;
 using Cars.Core.Repositories;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Linq;
 
 namespace Cars.Data.Repositories
 {
@@ -12,7 +13,7 @@ namespace Cars.Data.Repositories
     {
         private readonly Container _container;
 
-        public CarRepository(CosmosClient dbClient, 
+        public CarRepository(CosmosClient dbClient,
             string databaseName, string containerName)
         {
             _container = dbClient.GetContainer(databaseName, containerName);
@@ -27,9 +28,17 @@ namespace Cars.Data.Repositories
             return response.Resource;
         }
 
-        public async Task DeleteCarAsync(string carId)
+        public async Task<Car> DeleteCarAsync(string carId)
         {
-            await _container.DeleteItemAsync<Car>(carId, new PartitionKey(carId));
+            try
+            {
+                var response = await _container.DeleteItemAsync<Car>(carId, new PartitionKey(carId));
+                return response.Resource;
+            }
+            catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                return null;
+            }
         }
 
         public async Task<Car> GetCarAsync(string carId)
@@ -45,14 +54,16 @@ namespace Cars.Data.Repositories
             }
         }
 
-        public async Task<IEnumerable<Car>> GetCarsAsync(string queryString)
+        public async Task<IEnumerable<Car>> GetCarsAsync()
         {
-            var query = _container.GetItemQueryIterator<Car>(new QueryDefinition(queryString));
+            var query = _container.GetItemLinqQueryable<Car>();
+            var iterator = query.ToFeedIterator();
+
             List<Car> cars = new List<Car>();
 
-            while (query.HasMoreResults)
+            while (iterator.HasMoreResults)
             {
-                var response = await query.ReadNextAsync();
+                var response = await iterator.ReadNextAsync();
 
                 cars.AddRange(response.ToList());
             }
@@ -62,9 +73,16 @@ namespace Cars.Data.Repositories
 
         public async Task<Car> UpdateCarAsync(string carId, Car car)
         {
-            var response = await _container.UpsertItemAsync(car, new PartitionKey(carId));
+            try
+            {
+                var response = await _container.UpsertItemAsync(car, new PartitionKey(carId));
 
-            return response.Resource;
+                return response.Resource;
+            }
+            catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.BadRequest)
+            {
+                return null;
+            }
         }
     }
 }
