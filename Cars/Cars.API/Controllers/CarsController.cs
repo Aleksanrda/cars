@@ -35,10 +35,10 @@ namespace Cars.API.Controllers
 
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("Model state is not valid");
-
                 return BadRequest(ModelState);
             }
+
+            _logger.LogInformation("ModelState.IsValid");
 
             var car = _mapper.Map<Car>(dto);
 
@@ -91,10 +91,10 @@ namespace Cars.API.Controllers
 
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("Model state is not valid");
-
                 return BadRequest(ModelState);
             }
+
+            _logger.LogInformation("Model state is valid");
 
             await _carRepository.UpdateCarAsync(id, putCar);
 
