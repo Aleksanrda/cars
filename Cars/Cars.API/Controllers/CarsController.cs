@@ -29,7 +29,7 @@ namespace Cars.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> PostCar([FromBody] CarViewModel dto)
+        public async Task<IActionResult> PostCar([FromBody] CarViewModel viewModel)
         {
             _logger.LogInformation("POST method called");
 
@@ -40,12 +40,12 @@ namespace Cars.API.Controllers
 
             _logger.LogInformation("ModelState.IsValid");
 
-            var car = _mapper.Map<Car>(dto);
+            var car = _mapper.Map<Car>(viewModel);
 
             car.Id = Guid.NewGuid().ToString();
-            await _carRepository.AddCarAsync(car);
+            var newCar = await _carRepository.AddCarAsync(car);
 
-            return Ok();
+            return Ok(newCar);
         }
 
         [HttpGet]
@@ -96,9 +96,9 @@ namespace Cars.API.Controllers
 
             _logger.LogInformation("Model state is valid");
 
-            await _carRepository.UpdateCarAsync(id, putCar);
+            var editCar = await _carRepository.UpdateCarAsync(id, putCar);
 
-            return NoContent();
+            return Ok(editCar);
         }
 
         [HttpDelete("{id}")]

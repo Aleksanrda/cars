@@ -10,9 +10,9 @@ namespace Cars.Core.Repositories
 
         Task<Car> GetCarAsync(string carId);
 
-        Task AddCarAsync(Car car);
+        Task<Car> AddCarAsync(Car car);
 
-        Task UpdateCarAsync(string carId, Car car);
+        Task<Car> UpdateCarAsync(string carId, Car car);
 
         Task DeleteCarAsync(string carId);
     }

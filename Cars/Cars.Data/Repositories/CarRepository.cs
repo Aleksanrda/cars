@@ -17,9 +17,11 @@ namespace Cars.Data.Repositories
             _container = dbClient.GetContainer(databaseName, containerName);
         }
 
-        public async Task AddCarAsync(Car car)
+        public async Task<Car> AddCarAsync(Car car)
         {
-            await _container.CreateItemAsync(car, new PartitionKey(car.Id));
+            var response = await _container.CreateItemAsync(car, new PartitionKey(car.Id));
+
+            return response.Resource;
         }
 
         public async Task DeleteCarAsync(string carId)
@@ -55,9 +57,11 @@ namespace Cars.Data.Repositories
             return cars;
         }
 
-        public async Task UpdateCarAsync(string carId, Car car)
+        public async Task<Car> UpdateCarAsync(string carId, Car car)
         {
-            await _container.UpsertItemAsync(car, new PartitionKey(carId));
+            var response = await _container.UpsertItemAsync(car, new PartitionKey(carId));
+
+            return response.Resource;
         }
     }
 }
