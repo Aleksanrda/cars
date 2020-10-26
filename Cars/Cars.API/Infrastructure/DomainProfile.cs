@@ -6,13 +6,14 @@ using AutoMapper;
 using Cars.Core.Entities;
 using Cars.ViewModel;
 
-namespace Cars.API
+namespace Cars.API.Infrastructure
 {
     public class DomainProfile : Profile
     {
         public DomainProfile()
         {
-            CreateMap<CarViewModel, Car>();
+            CreateMap<CreatedCarViewModel, Car>();
+            CreateMap<UpdatedCarViewModel, Car>();
         }
     }
 }

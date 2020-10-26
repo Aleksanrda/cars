@@ -1,10 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using Cars.ViewModel.Validators;
 
-namespace Cars.ViewModel
+namespace Cars.ViewModel.ViewModels
 {
-    public class CarViewModel
+    public class UpdatedCarViewModel
     {
-        [Required]
+        public string Id { get; set; }
+
         public string Name { get; set; }
 
         public double Volume { get; set; }

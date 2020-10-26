@@ -13,16 +13,13 @@ namespace Cars.Data.Repositories
     {
         private readonly Container _container;
 
-        public CarRepository(CosmosClient dbClient,
-            string databaseName, string containerName)
+        public CarRepository(Container container)
         {
-            _container = dbClient.GetContainer(databaseName, containerName);
+            _container = container;
         }
 
         public async Task<Car> AddCarAsync(Car car)
         {
-            car.Id = Guid.NewGuid().ToString();
-
             var response = await _container.CreateItemAsync(car, new PartitionKey(car.Id));
 
             return response.Resource;

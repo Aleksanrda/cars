@@ -1,7 +1,9 @@
 using System.Threading.Tasks;
 using AutoMapper;
+using Cars.API.Infrastructure;
 using Cars.Core.Repositories;
 using Cars.Data.Repositories;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -9,7 +11,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using Serilog;
 
 namespace Cars.API
 {
@@ -40,9 +41,11 @@ namespace Cars.API
 
             services.AddLogging(builder => builder.AddConsole());
 
-            services.AddSingleton<ICarRepository>(InitializeCosmosClientInstanceAsync(Configuration.GetSection("CosmosDb")).GetAwaiter().GetResult());
+            services.AddSingleton(InitializeCosmosClientInstanceAsync(Configuration.GetSection("CosmosDb")).GetAwaiter().GetResult());
 
             services.RegisterCarsServices(Configuration);
+
+            services.AddMvc().AddFluentValidation();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env,
@@ -75,7 +78,7 @@ namespace Cars.API
             });
         }
 
-        private static async Task<CarRepository> InitializeCosmosClientInstanceAsync(IConfigurationSection configurationSection)
+        private static async Task<IUnitOfWork> InitializeCosmosClientInstanceAsync(IConfigurationSection configurationSection)
         {
             string databaseName = configurationSection.GetSection("DatabaseName").Value;
             string containerName = configurationSection.GetSection("ContainerName").Value;
@@ -83,7 +86,7 @@ namespace Cars.API
             string key = configurationSection.GetSection("Key").Value;
 
             Microsoft.Azure.Cosmos.CosmosClient client = new Microsoft.Azure.Cosmos.CosmosClient(account, key);
-            CarRepository cosmosDbService = new CarRepository(client, databaseName, containerName);
+            IUnitOfWork cosmosDbService = new UnitOfWork(client, databaseName, containerName);
 
             Microsoft.Azure.Cosmos.DatabaseResponse database = await client.CreateDatabaseIfNotExistsAsync(databaseName);
             await database.Database.CreateContainerIfNotExistsAsync(containerName, "/id");

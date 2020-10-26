@@ -5,6 +5,7 @@ using Cars.Core.Entities;
 using Cars.Core.Repositories;
 using Cars.Core.Services;
 using Cars.ViewModel;
+using Cars.ViewModel.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -30,14 +31,9 @@ namespace Cars.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> PostCar([FromBody] CarViewModel viewModel)
+        public async Task<IActionResult> PostCar([FromBody] CreatedCarViewModel viewModel)
         {
-            _logger.LogInformation("POST method called");
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            _logger.LogInformation("POST method is called");
 
             _logger.LogInformation("ModelState.IsValid");
 
@@ -52,7 +48,7 @@ namespace Cars.API.Controllers
         [ProducesResponseType(typeof(Car[]), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetCars()
         {
-            _logger.LogInformation("GetCars method called");
+            _logger.LogInformation("GetCars method is called");
 
             var cars = await _carsService.GetCarsAsync();
 
@@ -63,14 +59,7 @@ namespace Cars.API.Controllers
         [ProducesResponseType(typeof(Car[]), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetCar([FromRoute] string carId)
         {
-            _logger.LogInformation("GetCar method called");
-
-            if (carId == null)
-            {
-                _logger.LogWarning("BadRequest");
-
-                return BadRequest();
-            }
+            _logger.LogInformation("GetCar method is called");
 
             var car = await _carsService.GetCarAsync(carId);
 
@@ -85,39 +74,29 @@ namespace Cars.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCar([FromRoute] string id, [FromBody] Car putCar)
+        public async Task<IActionResult> PutCar([FromRoute] string id, 
+            [FromBody] UpdatedCarViewModel updatedCarViewModel)
         {
-            _logger.LogInformation("PutCar method called");
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            _logger.LogInformation("PutCar method is called");
 
             _logger.LogInformation("Model state is valid");
 
-            var editCar = await _carsService.UpdateCarAsync(id, putCar);
+            var car = _mapper.Map<Car>(updatedCarViewModel);
+            var updatedCar = await _carsService.UpdateCarAsync(id, car);
 
-            if (editCar == null)
+            if (updatedCar == null)
             {
                 return BadRequest();
             }
 
-            return Ok(editCar);
+            return Ok(updatedCar);
         }
 
         [HttpDelete("{id}")]
         [ProducesResponseType(typeof(Car), StatusCodes.Status200OK)]
         public async Task<IActionResult> DeleteCar([FromRoute] string id)
         {
-            _logger.LogInformation("DeleteCar method called");
-
-            if (id == null)
-            {
-                _logger.LogWarning("BadRequest");
-
-                return BadRequest();
-            }
+            _logger.LogInformation("DeleteCar method is called");
 
             var car = await _carsService.DeleteCarAsync(id);
 

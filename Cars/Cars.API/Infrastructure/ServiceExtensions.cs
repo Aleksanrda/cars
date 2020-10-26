@@ -4,12 +4,13 @@ using Cars.Data.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Cars.Core.Services;
+using Cars.ViewModel;
+using Cars.ViewModel.Validators;
+using Cars.ViewModel.ViewModels;
+using FluentValidation;
 
-namespace Cars.API
+namespace Cars.API.Infrastructure
 {
     public static class ServiceExtensions
     {
@@ -21,6 +22,7 @@ namespace Cars.API
             }
 
             services.AddScoped<ICarsService, CarsService>();
+            services.AddTransient<IValidator<UpdatedCarViewModel>, UpdatedCarValidator>();
 
             return services;
         }

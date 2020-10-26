@@ -9,46 +9,48 @@ namespace Cars.Core.Services
 {
     public class CarsService : ICarsService
     {
-        private readonly ICarRepository _carRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public CarsService(ICarRepository carRepository)
+        public CarsService(IUnitOfWork unitOfWork)
         {
-            _carRepository = carRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<Car> AddCarAsync(Car car)
         {
-            var newCar = await _carRepository.AddCarAsync(car);
+            car.Id = Guid.NewGuid().ToString();
+
+            var newCar = await _unitOfWork.Cars.AddCarAsync(car);
 
             return newCar;
         }
 
         public async Task<Car> DeleteCarAsync(string carId)
         {
-            var response = await _carRepository.DeleteCarAsync(carId);
+            var response = await _unitOfWork.Cars.DeleteCarAsync(carId);
 
             return response;
         }
 
         public async Task<Car> GetCarAsync(string carId)
         {
-            var car = await _carRepository.GetCarAsync(carId);
+            var car = await _unitOfWork.Cars.GetCarAsync(carId);
 
             return car;
         }
 
         public async Task<IEnumerable<Car>> GetCarsAsync()
         {
-            var cars = await _carRepository.GetCarsAsync();
+            var cars = await _unitOfWork.Cars.GetCarsAsync();
 
             return cars;
         }
 
         public async Task<Car> UpdateCarAsync(string carId, Car car)
         {
-            var editCar = await _carRepository.UpdateCarAsync(carId, car);
+            var editedCar = await _unitOfWork.Cars.UpdateCarAsync(carId, car);
 
-            return editCar;
+            return editedCar;
         }
     }
 }
